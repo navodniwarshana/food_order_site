@@ -120,16 +120,7 @@ CREATE TABLE `users` (
   `address` varchar(500) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `reviews` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `customer_name` varchar(255) NOT NULL,
-  `review_text` text NOT NULL,
-  `rating` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `user_image` longblob NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+CREATE
 
 
 
