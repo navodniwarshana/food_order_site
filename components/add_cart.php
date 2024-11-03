@@ -6,14 +6,23 @@ if(isset($_POST['add_to_cart'])){
       header('location:login.php');
    }else{
 
+      // Get product ID from POST and sanitize
       $pid = $_POST['pid'];
       $pid = filter_var($pid, FILTER_SANITIZE_STRING);
+      
+      // Get product name from POST and sanitize
       $name = $_POST['name'];
       $name = filter_var($name, FILTER_SANITIZE_STRING);
+      
+      // Get product price from POST and sanitize
       $price = $_POST['price'];
       $price = filter_var($price, FILTER_SANITIZE_STRING);
+      
+      // Get product image from POST and sanitize
       $image = $_POST['image'];
       $image = filter_var($image, FILTER_SANITIZE_STRING);
+      
+      // Get product quantity from POST and sanitize
       $qty = $_POST['qty'];
       $qty = filter_var($qty, FILTER_SANITIZE_STRING);
 

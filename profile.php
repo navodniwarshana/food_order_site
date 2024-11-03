@@ -1,9 +1,12 @@
 <?php
 
+// Include the 'components/connect.php' file
 include 'components/connect.php';
 
+// Start the PHP session
 session_start();
 
+// Check if user is logged in and retrieve user information
 if (isset($_SESSION['user_id'])) {
    $user_id = $_SESSION['user_id'];
    $select_user = $conn->prepare("SELECT * FROM `users` WHERE id = ?");
@@ -26,17 +29,17 @@ if (isset($_SESSION['user_id'])) {
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>profile</title>
 
-   <!-- font awesome cdn link  -->
+   <!-- font awesome cdn link -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-   <!-- custom css file link  -->
+   <!-- custom css file link -->
    <link rel="stylesheet" href="css/style.css">
 
 </head>
 
 <body>
 
-   <!-- header section starts  -->
+   <!-- header section starts -->
    <?php include 'components/user_header.php'; ?>
    <!-- header section ends -->
 
@@ -47,9 +50,11 @@ if (isset($_SESSION['user_id'])) {
 
          ?>
 
+         <!-- Section for user profile picture -->
          <div class="profile-picture" style="display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 1rem;  margin: 2rem;  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); margin-bottom: 1rem;">
             <img src="<?php echo $user_image; ?>" alt="" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
          </div>
+         <!-- Display user information -->
          <p><i class="fas fa-user"></i><span><span><?= $fetch_profile['name']; ?></span></span></p>
          <p><i class="fas fa-phone"></i><span><?= $fetch_profile['number']; ?></span></p>
          <p><i class="fas fa-envelope"></i><span><?= $fetch_profile['email']; ?></span></p>
@@ -64,24 +69,10 @@ if (isset($_SESSION['user_id'])) {
 
    </section>
 
-
-
-
-
-
-
-
-
-
+   <!-- Include the footer section -->
    <?php include 'components/footer.php'; ?>
 
-
-
-
-
-
-
-   <!-- custom js file link  -->
+   <!-- custom js file link -->
    <script src="js/script.js"></script>
 
 </body>

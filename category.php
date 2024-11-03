@@ -1,15 +1,19 @@
 <?php
 
+// Include the 'components/connect.php' file
 include 'components/connect.php';
 
+// Start the PHP session
 session_start();
 
+// Check if the user is logged in and set the user_id
 if(isset($_SESSION['user_id'])){
    $user_id = $_SESSION['user_id'];
 }else{
    $user_id = '';
 };
 
+// Include the 'components/add_cart.php' file
 include 'components/add_cart.php';
 
 ?>
@@ -22,10 +26,10 @@ include 'components/add_cart.php';
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>category</title>
 
-   <!-- font awesome cdn link  -->
+   <!-- font awesome cdn link -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-   <!-- custom css file link  -->
+   <!-- custom css file link -->
    <link rel="stylesheet" href="css/style.css">
 
 </head>
@@ -40,9 +44,12 @@ include 'components/add_cart.php';
    <div class="box-container">
 
       <?php
+         // Get the category from the URL parameter
          $category = $_GET['category'];
+         // Prepare SQL statement to select products of the chosen category
          $select_products = $conn->prepare("SELECT * FROM `products` WHERE category = ?");
          $select_products->execute([$category]);
+         // If products exist, display them
          if($select_products->rowCount() > 0){
             while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){
       ?>
@@ -63,6 +70,7 @@ include 'components/add_cart.php';
       <?php
             }
          }else{
+            // If no products, display a message
             echo '<p class="empty">no products added yet!</p>';
          }
       ?>
@@ -92,7 +100,7 @@ include 'components/add_cart.php';
 
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
-<!-- custom js file link  -->
+<!-- custom js file link -->
 <script src="js/script.js"></script>
 
 

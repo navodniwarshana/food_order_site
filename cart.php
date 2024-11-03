@@ -1,9 +1,13 @@
 <?php
 
+// Include the database connection file
 include 'components/connect.php';
 
+// Start the PHP session
 session_start();
 
+// Check if user is logged in and set user_id
+// If not logged in, redirect to home page
 if (isset($_SESSION['user_id'])) {
    $user_id = $_SESSION['user_id'];
 } else {
@@ -11,6 +15,7 @@ if (isset($_SESSION['user_id'])) {
    header('location:home.php');
 };
 
+// Handle deletion of a single cart item
 if (isset($_POST['delete'])) {
    $cart_id = $_POST['cart_id'];
    $delete_cart_item = $conn->prepare("DELETE FROM `cart` WHERE id = ?");
@@ -18,13 +23,14 @@ if (isset($_POST['delete'])) {
    $message[] = 'cart item deleted!';
 }
 
+// Handle deletion of all items in the cart
 if (isset($_POST['delete_all'])) {
    $delete_cart_item = $conn->prepare("DELETE FROM `cart` WHERE user_id = ?");
    $delete_cart_item->execute([$user_id]);
-   // header('location:cart.php');
    $message[] = 'deleted all from cart!';
 }
 
+// Handle updating the quantity of a cart item
 if (isset($_POST['update_qty'])) {
    $cart_id = $_POST['cart_id'];
    $qty = $_POST['qty'];
@@ -34,6 +40,7 @@ if (isset($_POST['update_qty'])) {
    $message[] = 'cart quantity updated';
 }
 
+// Initialize grand total variable
 $grand_total = 0;
 
 ?>
@@ -47,27 +54,26 @@ $grand_total = 0;
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>cart</title>
 
-   <!-- font awesome cdn link  -->
+   <!-- Include Font Awesome CSS for icons -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-   <!-- custom css file link  -->
+   <!-- Include custom CSS file -->
    <link rel="stylesheet" href="css/style.css">
 
 </head>
 
 <body>
 
-   <!-- header section starts  -->
+   <!-- Include the header section for user -->
    <?php include 'components/user_header.php'; ?>
-   <!-- header section ends -->
 
+   <!-- Display the page heading and breadcrumb -->
    <div class="heading">
       <h3>shopping cart</h3>
       <p><a href="home.php">home</a> <span> / cart</span></p>
    </div>
 
-   <!-- shopping cart section starts  -->
-
+   <!-- Shopping cart section starts -->
    <section class="products">
 
       <h1 class="title">your cart</h1>
@@ -75,12 +81,15 @@ $grand_total = 0;
       <div class="box-container">
 
          <?php
+         // Initialize grand total
          $grand_total = 0;
+         // Fetch cart items for the current user
          $select_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
          $select_cart->execute([$user_id]);
          if ($select_cart->rowCount() > 0) {
             while ($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)) {
          ?>
+               <!-- Display each cart item -->
                <form action="" method="post" class="box">
                   <input type="hidden" name="cart_id" value="<?= $fetch_cart['id']; ?>">
                   <a href="quick_view.php?pid=<?= $fetch_cart['pid']; ?>" class="fas fa-eye"></a>
@@ -95,20 +104,24 @@ $grand_total = 0;
                   <div class="sub-total"> sub total : <span>Rs.<?= $sub_total = ($fetch_cart['price'] * $fetch_cart['quantity']); ?>/-</span> </div>
                </form>
          <?php
+               // Calculate grand total
                $grand_total += $sub_total;
             }
          } else {
+            // Display message if cart is empty
             echo '<p class="empty">your cart is empty</p>';
          }
          ?>
 
       </div>
 
+      <!-- Display cart total and checkout button -->
       <div class="cart-total">
          <p>cart total : <span>Rs.<?= $grand_total; ?></span></p>
          <a href="checkout.php" class="btn <?= ($grand_total > 1) ? '' : 'disabled'; ?>">proceed to checkout</a>
       </div>
 
+      <!-- Display additional buttons -->
       <div class="more-btn">
          <form action="" method="post">
             <button type="submit" class="delete-btn <?= ($grand_total > 1) ? '' : 'disabled'; ?>" name="delete_all" onclick="return confirm('delete all from cart?');">delete all</button>
@@ -117,30 +130,12 @@ $grand_total = 0;
       </div>
 
    </section>
+   <!-- Shopping cart section ends -->
 
-   <!-- shopping cart section ends -->
-
-
-
-
-
-
-
-
-
-
-   <!-- footer section starts  -->
+   <!-- Include the footer section -->
    <?php include 'components/footer.php'; ?>
-   <!-- footer section ends -->
 
-
-
-
-
-
-
-
-   <!-- custom js file link  -->
+   <!-- Include custom JavaScript file -->
    <script src="js/script.js"></script>
 
 </body>

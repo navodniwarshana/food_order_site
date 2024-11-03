@@ -1,9 +1,13 @@
 <?php
 
+// Include the database connection file
 include 'components/connect.php';
 
+// Start the PHP session
 session_start();
 
+// Check if user is logged in and set user_id
+// If not logged in, redirect to home page
 if(isset($_SESSION['user_id'])){
    $user_id = $_SESSION['user_id'];
 }else{
@@ -11,8 +15,10 @@ if(isset($_SESSION['user_id'])){
    header('location:home.php');
 };
 
+// Handle form submission for placing an order
 if(isset($_POST['submit'])){
 
+   // Sanitize and store form input values
    $name = $_POST['name'];
    $name = filter_var($name, FILTER_SANITIZE_STRING);
    $number = $_POST['number'];
@@ -26,18 +32,22 @@ if(isset($_POST['submit'])){
    $total_products = $_POST['total_products'];
    $total_price = $_POST['total_price'];
 
+   // Check if the user has items in their cart
    $check_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
    $check_cart->execute([$user_id]);
 
    if($check_cart->rowCount() > 0){
 
+      // Check if address is provided
       if($address == ''){
          $message[] = 'please add your address!';
       }else{
          
+         // Insert order into the database
          $insert_order = $conn->prepare("INSERT INTO `orders`(user_id, name, number, email, method, address, total_products, total_price) VALUES(?,?,?,?,?,?,?,?)");
          $insert_order->execute([$user_id, $name, $number, $email, $method, $address, $total_products, $total_price]);
 
+         // Delete items from cart after placing order
          $delete_cart = $conn->prepare("DELETE FROM `cart` WHERE user_id = ?");
          $delete_cart->execute([$user_id]);
 
@@ -87,12 +97,15 @@ if(isset($_POST['submit'])){
    <div class="cart-items">
       <h3>cart items</h3>
       <?php
+         // Initialize variables for cart items and total
          $grand_total = 0;
          $cart_items[] = '';
+         // Fetch cart items for the current user
          $select_cart = $conn->prepare("SELECT * FROM `cart` WHERE user_id = ?");
          $select_cart->execute([$user_id]);
          if($select_cart->rowCount() > 0){
             while($fetch_cart = $select_cart->fetch(PDO::FETCH_ASSOC)){
+               // Build cart items string and calculate total
                $cart_items[] = $fetch_cart['name'].' ('.$fetch_cart['price'].' x '. $fetch_cart['quantity'].') - ';
                $total_products = implode($cart_items);
                $grand_total += ($fetch_cart['price'] * $fetch_cart['quantity']);
@@ -108,6 +121,7 @@ if(isset($_POST['submit'])){
       <a href="cart.php" class="btn">veiw cart</a>
    </div>
 
+   <!-- Hidden input fields for order details -->
    <input type="hidden" name="total_products" value="<?= $total_products; ?>">
    <input type="hidden" name="total_price" value="<?= $grand_total; ?>" value="">
    <input type="hidden" name="name" value="<?= $fetch_profile['name'] ?>">
@@ -138,22 +152,9 @@ if(isset($_POST['submit'])){
    
 </section>
 
-
-
-
-
-
-
-
-
 <!-- footer section starts  -->
 <?php include 'components/footer.php'; ?>
 <!-- footer section ends -->
-
-
-
-
-
 
 <!-- custom js file link  -->
 <script src="js/script.js"></script>

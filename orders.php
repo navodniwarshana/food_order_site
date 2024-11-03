@@ -1,9 +1,13 @@
 <?php
 
+// Include the database connection file
 include 'components/connect.php';
 
+// Start the PHP session
 session_start();
 
+// Check if user is logged in and set user_id
+// If not logged in, redirect to home page
 if (isset($_SESSION['user_id'])) {
    $user_id = $_SESSION['user_id'];
 } else {
@@ -22,25 +26,26 @@ if (isset($_SESSION['user_id'])) {
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>orders</title>
 
-   <!-- font awesome cdn link  -->
+   <!-- Include Font Awesome CSS for icons -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
-   <!-- custom css file link  -->
+   <!-- Include custom CSS file -->
    <link rel="stylesheet" href="css/style.css">
 
 </head>
 
 <body>
 
-   <!-- header section starts  -->
+   <!-- Include the header section for user -->
    <?php include 'components/user_header.php'; ?>
-   <!-- header section ends -->
 
+   <!-- Display the page heading and breadcrumb -->
    <div class="heading">
       <h3>orders</h3>
       <p><a href="html.php">home</a> <span> / orders</span></p>
    </div>
 
+   <!-- Orders section starts -->
    <section class="orders">
 
       <h1 class="title">your orders</h1>
@@ -48,14 +53,17 @@ if (isset($_SESSION['user_id'])) {
       <div class="box-container">
 
          <?php
+         // Check if user is logged in
          if ($user_id == '') {
             echo '<p class="empty">please login to see your orders</p>';
          } else {
+            // Fetch orders for the logged-in user
             $select_orders = $conn->prepare("SELECT * FROM `orders` WHERE user_id = ?");
             $select_orders->execute([$user_id]);
             if ($select_orders->rowCount() > 0) {
                while ($fetch_orders = $select_orders->fetch(PDO::FETCH_ASSOC)) {
          ?>
+                  <!-- Display order details -->
                   <div class="box">
                      <p>placed on : <span><?= $fetch_orders['placed_on']; ?></span></p>
                      <p>name : <span><?= $fetch_orders['name']; ?></span></p>
@@ -83,26 +91,12 @@ if (isset($_SESSION['user_id'])) {
       </div>
 
    </section>
+   <!-- Orders section ends -->
 
-
-
-
-
-
-
-
-
-
-   <!-- footer section starts  -->
+   <!-- Include the footer section -->
    <?php include 'components/footer.php'; ?>
-   <!-- footer section ends -->
 
-
-
-
-
-
-   <!-- custom js file link  -->
+   <!-- Include custom JavaScript file -->
    <script src="js/script.js"></script>
 
 </body>

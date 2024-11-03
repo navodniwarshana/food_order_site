@@ -1,43 +1,58 @@
 <?php
 
+// Include the 'components/connect.php' file
 include 'components/connect.php';
 
+// Start the PHP session
 session_start();
 
+// Check if user is logged in and set user_id
 if(isset($_SESSION['user_id'])){
    $user_id = $_SESSION['user_id'];
 }else{
    $user_id = '';
 };
 
+// Handle form submission
 if(isset($_POST['submit'])){
 
+   // Get and sanitize name input
    $name = $_POST['name'];
    $name = filter_var($name, FILTER_SANITIZE_STRING);
+   // Get and sanitize email input
    $email = $_POST['email'];
    $email = filter_var($email, FILTER_SANITIZE_STRING);
+   // Get and sanitize number input
    $number = $_POST['number'];
    $number = filter_var($number, FILTER_SANITIZE_STRING);
+   // Hash and sanitize password input
    $pass = sha1($_POST['pass']);
    $pass = filter_var($pass, FILTER_SANITIZE_STRING);
+   // Hash and sanitize confirm password input
    $cpass = sha1($_POST['cpass']);
    $cpass = filter_var($cpass, FILTER_SANITIZE_STRING);
 
+   // Select user from database with matching email or number
    $select_user = $conn->prepare("SELECT * FROM `users` WHERE email = ? OR number = ?");
    $select_user->execute([$email, $number]);
    $row = $select_user->fetch(PDO::FETCH_ASSOC);
 
+   // If user already exists, set error message
    if($select_user->rowCount() > 0){
       $message[] = 'email or number already exists!';
    }else{
+      // If passwords don't match, set error message
       if($pass != $cpass){
          $message[] = 'confirm password not matched!';
       }else{
+         // Insert new user into database
          $insert_user = $conn->prepare("INSERT INTO `users`(name, email, number, password) VALUES(?,?,?,?)");
          $insert_user->execute([$name, $email, $number, $cpass]);
+         // Select the newly registered user
          $select_user = $conn->prepare("SELECT * FROM `users` WHERE email = ? AND password = ?");
          $select_user->execute([$email, $pass]);
          $row = $select_user->fetch(PDO::FETCH_ASSOC);
+         // If user successfully registered, set session and redirect to home page
          if($select_user->rowCount() > 0){
             $_SESSION['user_id'] = $row['id'];
             header('location:home.php');

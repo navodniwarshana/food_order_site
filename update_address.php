@@ -1,26 +1,36 @@
 <?php
 
+// Include the database connection file
 include 'components/connect.php';
 
+// Start the session
 session_start();
 
+// Check if the user is logged in
 if(isset($_SESSION['user_id'])){
    $user_id = $_SESSION['user_id'];
 }else{
    $user_id = '';
+   // Redirect the user to the home page if not logged in
    header('location:home.php');
 };
 
+// Check if the form has been submitted
 if(isset($_POST['submit'])){
 
+   // Construct the full address from form inputs
    $address = $_POST['flat'] .', '.$_POST['building'].', '.$_POST['area'].', '.$_POST['town'] .', '. $_POST['city'] .', '. $_POST['state'] .', '. $_POST['country'] .' - '. $_POST['pin_code'];
+   // Sanitize the address string to prevent SQL injection
    $address = filter_var($address, FILTER_SANITIZE_STRING);
 
+   // Prepare and execute the SQL query to update the user's address
    $update_address = $conn->prepare("UPDATE `users` set address = ? WHERE id = ?");
    $update_address->execute([$address, $user_id]);
 
+   // Display a success message
    $message[] = 'address saved!';
 
+   // Redirect the user to the checkout page
    header('location:checkout.php');
 }
 

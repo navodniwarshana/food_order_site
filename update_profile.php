@@ -1,31 +1,41 @@
 <?php
 
+// Include the database connection file
 include 'components/connect.php';
 
+// Start the session
 session_start();
 
+// Check if the user is logged in
 if (isset($_SESSION['user_id'])) {
    $user_id = $_SESSION['user_id'];
 } else {
    $user_id = '';
+   // Redirect the user to the home page if not logged in
    header('location:home.php');
 };
 
+// Check if the form has been submitted
 if (isset($_POST['submit'])) {
 
+   // Retrieve and sanitize the name from the form
    $name = $_POST['name'];
    $name = filter_var($name, FILTER_SANITIZE_STRING);
 
+   // Retrieve and sanitize the email from the form
    $email = $_POST['email'];
    $email = filter_var($email, FILTER_SANITIZE_STRING);
+   // Retrieve and sanitize the phone number from the form
    $number = $_POST['number'];
    $number = filter_var($number, FILTER_SANITIZE_STRING);
 
+   // Update the user's name if it's not empty
    if (!empty($name)) {
       $update_name = $conn->prepare("UPDATE `users` SET name = ? WHERE id = ?");
       $update_name->execute([$name, $user_id]);
    }
 
+   // Check if the email is already taken and update it if not
    if (!empty($email)) {
       $select_email = $conn->prepare("SELECT * FROM `users` WHERE email = ?");
       $select_email->execute([$email]);
@@ -37,6 +47,7 @@ if (isset($_POST['submit'])) {
       }
    }
 
+   // Check if the phone number is already taken and update it if not
    if (!empty($number)) {
       $select_number = $conn->prepare("SELECT * FROM `users` WHERE number = ?");
       $select_number->execute([$number]);
@@ -48,6 +59,7 @@ if (isset($_POST['submit'])) {
       }
    }
 
+   // Handle the user image upload
    if (isset($_FILES['user_image'])) {
       $file_name = $_FILES['user_image']['name'];
       $file_size = $_FILES['user_image']['size'];
@@ -58,14 +70,17 @@ if (isset($_POST['submit'])) {
 
       $extensions = array("jpeg", "jpg", "png", "webp");
 
+      // Check if the file extension is allowed
       if (in_array($file_ext, $extensions) === false) {
          $message[] = "extension not allowed, please choose a JPEG or PNG file.";
       }
 
+      // Check if the file size exceeds the limit
       if ($file_size > 2097152) {
          $message[] = 'File size must be less than 2 MB';
       }
 
+      // If there are no errors, move the uploaded file to the images directory and update the user's profile picture
       if (empty($message) == true) {
          move_uploaded_file($file_tmp, "images/" . $file_name);
          $update_picture = $conn->prepare("UPDATE `users` SET user_image = ? WHERE id = ?");
@@ -73,18 +88,23 @@ if (isset($_POST['submit'])) {
       }
    }
 
+   // Retrieve the user's current password from the database
    $empty_pass = 'da39a3ee5e6b4b0d3255bfef95601890afd80709';
    $select_prev_pass = $conn->prepare("SELECT password FROM `users` WHERE id = ?");
    $select_prev_pass->execute([$user_id]);
    $fetch_prev_pass = $select_prev_pass->fetch(PDO::FETCH_ASSOC);
    $prev_pass = $fetch_prev_pass['password'];
+   // Retrieve and hash the old password from the form
    $old_pass = sha1($_POST['old_pass']);
    $old_pass = filter_var($old_pass, FILTER_SANITIZE_STRING);
+   // Retrieve and hash the new password from the form
    $new_pass = sha1($_POST['new_pass']);
    $new_pass = filter_var($new_pass, FILTER_SANITIZE_STRING);
+   // Retrieve and hash the confirm password from the form
    $confirm_pass = sha1($_POST['confirm_pass']);
    $confirm_pass = filter_var($confirm_pass, FILTER_SANITIZE_STRING);
 
+   // Check if the old password is correct and update the password if it's correct and the new password is not empty
    if ($old_pass != $empty_pass) {
       if ($old_pass != $prev_pass) {
          $message[] = 'old password not matched!';
